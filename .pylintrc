@@ -1,0 +1,11 @@
+[MESSAGES CONTROL]
+disable=
+    R0801,  # similar code
+    C0301,  # line too long
+    C0114,  # missing method docstring
+    C0115,  # missing class docstring
+    C0116   # missing function docstring
+
+[REPORTS]
+output-format=colorized
+msg-template={msg_id}{line:4d}{column:3d} {obj} {msg}
