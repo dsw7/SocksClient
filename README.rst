@@ -5,15 +5,10 @@ Check back soon!
 .. contents:: **Table of Contents:**
     :depth: 2
 
-Setup
+Section
 --------------------------------------------------
 *To be completed soon!*
 
-Step 1
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-*To be completed soon!*
-...
-
-Step n
+Subsection
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 *To be completed soon!*
