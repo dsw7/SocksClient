@@ -7,8 +7,8 @@ Check back soon!
 
 Setup
 --------------------------------------------------
-*To be completed*
+*To be completed soon!*
 
 Step 1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-*To be completed*
+*To be completed soon!*
