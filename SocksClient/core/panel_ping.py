@@ -92,7 +92,12 @@ def export_results_to_json(clients: Dict[str, Client]) -> None:
             continue
 
         status['status'] = 'ALIVE'
-        status['uptime'] = handle.send('uptime')
+        uptime = handle.send('uptime')
+
+        if uptime == 'uptime':
+            status['uptime'] = 'Command "uptime" does not exist!'
+        else:
+            status['uptime'] = uptime
 
         handle.disconnect()
         results[server] = status
