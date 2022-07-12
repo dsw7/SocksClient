@@ -1,7 +1,12 @@
 import sys
 import curses
+from os import path
+from typing import Dict
+from tempfile import gettempdir
+from click import echo
 from core.panel_base import ControlPanelBase
 from core.consts import PANEL_MARGIN
+from core.client import Client
 
 HEADER = ' {:<15} {:<15} {:<15} {:<15} {:<15} {:<15} {:<15}'.format(
     'HOST', 'STATUS', 'SYSTEM', 'NODE', 'RELEASE', 'MACHINE', 'VERSION'
@@ -81,3 +86,8 @@ class PanelSysInfo(ControlPanelBase):
 
 def panel_sysinfo(stdscr: curses.window, cli_params: dict) -> None:
     PanelSysInfo(stdscr, cli_params).main()
+
+def export_results_to_json(clients: Dict[str, Client]) -> None:
+
+    path_export = path.join(gettempdir(), 'ping_results.json')
+    echo(f'Exporting results to {path_export}')
