@@ -72,6 +72,7 @@ def panel_ping(stdscr: curses.window, cli_params: dict) -> None:
     PanelPing(stdscr, cli_params).main()
 
 def export_results_to_json(client: Client) -> None:
+    print(client)
 
     path_export = path.join(gettempdir(), 'ping_results.json')
     echo(f'Exporting results to {path_export}')
