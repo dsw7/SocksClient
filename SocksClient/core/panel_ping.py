@@ -16,6 +16,7 @@ OFFSET = 21
 class PanelPing(ControlPanelBase):
 
     def run_server_command(self) -> None:
+
         for server, handle in self.cli_params['clients'].items():
             status = {}
 
@@ -32,15 +33,17 @@ class PanelPing(ControlPanelBase):
             self.results[server] = status
 
     def render_subwin_header(self) -> None:
+
         frequency = 1 / (self.cli_params['configs']['frontend'].getint('panel_refresh_period_msec') / 1000)
 
         self.body.addstr(1, PANEL_MARGIN - 1, ' Panel type:')
         self.body.addstr(1, PANEL_MARGIN + 20, 'PING', curses.A_UNDERLINE)
         self.body.addstr(2, PANEL_MARGIN - 1, ' Refresh frequency:')
-        self.body.addstr(2, PANEL_MARGIN + 20, '{} Hz'.format(frequency))
+        self.body.addstr(2, PANEL_MARGIN + 20, f'{frequency} Hz')
         self.body.addstr(4, PANEL_MARGIN - 1, HEADER + ' ' * (self.body.getmaxyx()[1] - len(HEADER) - 4), curses.A_REVERSE)
 
     def render_body(self) -> None:
+
         for index, (server, status) in enumerate(self.results.items(), 5):  # Offset to account for header position
             self.body.addstr(index, PANEL_MARGIN + 0 * OFFSET, server)
 
@@ -50,6 +53,7 @@ class PanelPing(ControlPanelBase):
             self.body.addstr(index, PANEL_MARGIN + 2 * OFFSET, status['uptime'])
 
     def update_body(self) -> None:
+
         sleep_msec = self.cli_params['configs']['frontend'].getint('panel_refresh_period_msec')
 
         while self.run_program:
@@ -60,6 +64,7 @@ class PanelPing(ControlPanelBase):
             curses.napms(sleep_msec)
 
     def main(self) -> None:
+
         self.display_header()
         self.display_footer()
         self.render_subwin_header()
