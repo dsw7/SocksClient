@@ -7,6 +7,7 @@ from core.consts import PROJECT_TITLE
 class ControlPanelBase(ABC):
 
     def __init__(self, stdscr: curses.window, cli_params: dict) -> None:
+
         self.stdscr = stdscr
         self.rows, self.columns = self.stdscr.getmaxyx()
 
@@ -26,11 +27,13 @@ class ControlPanelBase(ABC):
         self.run_program = True
 
     def wait_for_user_input(self) -> None:
+
         while self.run_program:
             if self.stdscr.getch() == ord('q'):
                 self.run_program = False
 
     def command_does_not_exist(self, command: str) -> Tuple[bool, List[str]]:
+
         status, servers = [], []
 
         for server, handle in self.cli_params['clients'].items():
@@ -44,13 +47,16 @@ class ControlPanelBase(ABC):
                 status.append(False)
 
             handle.disconnect()
+
         return any(status), servers
 
     def display_header(self) -> None:
+
         self.header.addstr(1, (self.columns // 2) - (len(PROJECT_TITLE) // 2), PROJECT_TITLE, curses.A_BOLD)
         self.header.box()
 
     def display_footer(self) -> None:
+
         self.footer.addstr(0, 1, 'Press "q" to quit', curses.A_REVERSE)
         self.footer.bkgd(curses.A_REVERSE)
 
