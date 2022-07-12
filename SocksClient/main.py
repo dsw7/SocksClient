@@ -40,7 +40,7 @@ def ping(obj, export_to_file: bool) -> None:
     from core.panel_ping import export_results_to_json, panel_ping # Import here to ensure lazy evaluation
 
     if export_to_file:
-        export_results_to_json(context.obj['clients'])
+        export_results_to_json(obj['clients'])
         return
 
     wrapper(panel_ping, obj)
