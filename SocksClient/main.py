@@ -50,10 +50,12 @@ def ping(obj, export_to_file: bool) -> None:
 @pass_obj
 def sysinfo(obj, export_to_file: bool) -> None:
 
+    from core.panel_sysinfo import export_results_to_json, panel_sysinfo
+
     if export_to_file:
+        export_results_to_json(obj['clients'])
         return
 
-    from core.panel_sysinfo import panel_sysinfo
     wrapper(panel_sysinfo, obj)
 
 if __name__ == '__main__':
