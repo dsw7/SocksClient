@@ -1,5 +1,6 @@
 import sys
 import curses
+from json import dumps
 from os import path
 from typing import Dict
 from tempfile import gettempdir
@@ -89,5 +90,25 @@ def panel_sysinfo(stdscr: curses.window, cli_params: dict) -> None:
 
 def export_results_to_json(clients: Dict[str, Client]) -> None:
 
-    path_export = path.join(gettempdir(), 'ping_results.json')
+    results = {}
+
+    for server, handle in clients.items():
+        status = {}
+
+        if not handle.connect():
+            status['status'] = 'DEAD'
+            status['results'] = EMPTY_RESULTS
+            results[server] = status
+            continue
+
+        status['status'] = 'ALIVE'
+        status['results'] = split_results(handle.send('sysinfo'))
+
+        handle.disconnect()
+        results[server] = status
+
+    path_export = path.join(gettempdir(), 'sysinfo_results.json')
     echo(f'Exporting results to {path_export}')
+
+    with open(path_export, 'w') as f:
+        f.write(dumps(results, indent=4))
