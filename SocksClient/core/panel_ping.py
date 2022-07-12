@@ -1,6 +1,7 @@
 import curses
 from os import path
 from concurrent import futures
+from typing import Dict
 from tempfile import gettempdir
 from click import echo
 from core.panel_base import ControlPanelBase
@@ -71,8 +72,26 @@ class PanelPing(ControlPanelBase):
 def panel_ping(stdscr: curses.window, cli_params: dict) -> None:
     PanelPing(stdscr, cli_params).main()
 
-def export_results_to_json(client: Client) -> None:
-    print(client)
+def export_results_to_json(clients: Dict[str, Client]) -> None:
+
+    results = {}
+
+    for server, handle in clients.items():
+        status = {}
+
+        if not handle.connect():
+            status['status'] = 'DEAD'
+            status['uptime'] = '-'
+            results[server] = status
+            continue
+
+        status['status'] = 'ALIVE'
+        status['uptime'] = handle.send('uptime')
+
+        handle.disconnect()
+        results[server] = status
+
+    print(results)
 
     path_export = path.join(gettempdir(), 'ping_results.json')
     echo(f'Exporting results to {path_export}')
