@@ -17,15 +17,18 @@ EMPTY_RESULTS = {
 
 def split_results(results: str) -> dict:
     splits = {}
+
     for result in results.split('\n')[:-1]:
         key, value = result.split(': ')
         splits[key] = value
+
     return splits
 
 
 class PanelSysInfo(ControlPanelBase):
 
     def run_server_command(self) -> None:
+
         for server, handle in self.cli_params['clients'].items():
             status = {}
 
@@ -48,6 +51,7 @@ class PanelSysInfo(ControlPanelBase):
         self.body.addstr(4, PANEL_MARGIN - 1, HEADER + ' ' * (self.body.getmaxyx()[1] - len(HEADER) - 4), curses.A_REVERSE)
 
     def render_body(self) -> None:
+
         for index, (server, status) in enumerate(self.results.items(), 5):
             self.body.addstr(index, PANEL_MARGIN + 0 * OFFSET, server)
             self.body.addstr(index, PANEL_MARGIN + 1 * OFFSET, status['status'])
@@ -58,6 +62,7 @@ class PanelSysInfo(ControlPanelBase):
             self.body.addstr(index, PANEL_MARGIN + 6 * OFFSET, status['results']['Version'])
 
     def main(self) -> None:
+
         status, servers = self.command_does_not_exist('sysinfo')
         if status:
             sys.exit('Command "sysinfo" does not exist on the following servers:\n{}'.format('\n'.join(servers)))
