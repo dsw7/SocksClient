@@ -4,7 +4,7 @@ import sys
 from os import path
 from curses import wrapper
 from configparser import ConfigParser
-from click import group, pass_context, pass_obj
+from click import group, pass_context, pass_obj, option
 from core.client import Client
 
 def read_socks_config_file() -> ConfigParser:
@@ -33,15 +33,23 @@ def main(context) -> None:
         context.obj['clients'][server] = Client(client_configs=configs['client-configs'], host=server)
 
 @main.command(help='Open curses panel displaying machine status and uptime')
+@option('-f', '--export-to-file', is_flag=True, help='Export results to JSON file')
 @pass_obj
-def ping(obj) -> None:
+def ping(obj, export_to_file: bool) -> None:
+
+    if export_to_file:
+        return
 
     from core.panel_ping import panel_ping  # Import here to ensure lazy evaluation
     wrapper(panel_ping, obj)
 
 @main.command(help='Open curses panel displaying machine uname results')
+@option('-f', '--export-to-file', is_flag=True, help='Export results to JSON file')
 @pass_obj
-def sysinfo(obj) -> None:
+def sysinfo(obj, export_to_file: bool) -> None:
+
+    if export_to_file:
+        return
 
     from core.panel_sysinfo import panel_sysinfo
     wrapper(panel_sysinfo, obj)
