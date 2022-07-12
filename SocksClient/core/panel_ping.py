@@ -1,5 +1,6 @@
 import curses
 from os import path
+from json import dumps
 from concurrent import futures
 from typing import Dict
 from tempfile import gettempdir
@@ -91,7 +92,8 @@ def export_results_to_json(clients: Dict[str, Client]) -> None:
         handle.disconnect()
         results[server] = status
 
-    print(results)
-
     path_export = path.join(gettempdir(), 'ping_results.json')
     echo(f'Exporting results to {path_export}')
+
+    with open(path_export, 'w') as f:
+        f.write(dumps(results, indent=4))
