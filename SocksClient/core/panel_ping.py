@@ -1,7 +1,11 @@
 import curses
+from os import path
 from concurrent import futures
+from tempfile import gettempdir
+from click import echo
 from core.panel_base import ControlPanelBase
 from core.consts import PANEL_MARGIN
+from core.client import Client
 
 HEADER = ' {:<20} {:<20} {:<20}'.format('HOST', 'STATUS', 'UPTIME (HH:MM:SS)')
 OFFSET = 21
@@ -66,3 +70,8 @@ class PanelPing(ControlPanelBase):
 # See https://docs.python.org/3/howto/curses.html#starting-and-ending-a-curses-application
 def panel_ping(stdscr: curses.window, cli_params: dict) -> None:
     PanelPing(stdscr, cli_params).main()
+
+def export_results_to_json(client: Client) -> None:
+
+    path_export = path.join(gettempdir(), 'ping_results.json')
+    echo(f'Exporting results to {path_export}')

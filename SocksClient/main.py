@@ -37,10 +37,12 @@ def main(context) -> None:
 @pass_obj
 def ping(obj, export_to_file: bool) -> None:
 
+    from core.panel_ping import export_results_to_json, panel_ping # Import here to ensure lazy evaluation
+
     if export_to_file:
+        export_results_to_json()
         return
 
-    from core.panel_ping import panel_ping  # Import here to ensure lazy evaluation
     wrapper(panel_ping, obj)
 
 @main.command(help='Open curses panel displaying machine uname results')
