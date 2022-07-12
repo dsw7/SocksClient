@@ -102,7 +102,12 @@ def export_results_to_json(clients: Dict[str, Client]) -> None:
             continue
 
         status['status'] = 'ALIVE'
-        status['results'] = split_results(handle.send('sysinfo'))
+        sysinfo = handle.send('sysinfo')
+
+        if sysinfo == 'sysinfo':
+            status['results'] = 'Command "sysinfo" does not exist!'
+        else:
+            status['results'] = split_results(sysinfo)
 
         handle.disconnect()
         results[server] = status
