@@ -48,7 +48,7 @@ class TestClient:
 
         command = [f'{getcwd()}/SocksClient/main.py']
         command.extend([f'--servers={s}' for s in self.ip_addr])
-        command.extend(['ping', '--export-to-fil'])
+        command.extend(['ping', '--export-to-file'])
 
         LOGGER.info('Running command: "%s"', ' '.join(command))
 
