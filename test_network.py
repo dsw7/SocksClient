@@ -1,6 +1,7 @@
-from os import getcwd
+from os import getcwd, EX_OK
 from typing import TypeVar
 from logging import getLogger
+from subprocess import Popen, DEVNULL
 import docker
 import pytest
 
@@ -20,6 +21,8 @@ class TestClient:
 
         client.images.build(path=getcwd(), tag=DOCKER_TAG)
 
+        LOGGER.info('Setting up Docker containers...')
+
         self.containers = [
             client.containers.run(DOCKER_TAG, detach=True, auto_remove=True),
             client.containers.run(DOCKER_TAG, detach=True, auto_remove=True),
@@ -35,9 +38,21 @@ class TestClient:
 
     def teardown_class(self: T) -> None:
 
+        LOGGER.info('Tearing down Docker containers...')
+
         for container in self.containers:
             LOGGER.info('Killing container "%s"', container.name)
             container.kill()
 
-    def test_netcat(self: T) -> None:
-        print(self.ip_addr)
+    def test_ping(self: T) -> None:
+
+        command = [f'{getcwd()}/SocksClient/main.py']
+        command.extend([f'--servers={s}' for s in self.ip_addr])
+        command.extend(['ping', '--export-to-fil'])
+
+        LOGGER.info('Running command: "%s"', ' '.join(command))
+
+        process = Popen(command, stdout=DEVNULL)
+        process.communicate()
+
+        assert process.returncode == EX_OK
