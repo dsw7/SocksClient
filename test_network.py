@@ -1,31 +1,43 @@
-import sys
 from os import getcwd
+from typing import TypeVar
+from logging import getLogger
 import docker
+import pytest
 
+T = TypeVar('T')
 DOCKER_TAG = 'socks-test'
-NETWORK_NAME = 'socks-network'
+LOGGER = getLogger(__name__)
 
-try:
-    client = docker.from_env()
-except docker.errors.DockerException as exc:
-    sys.exit(f'Cannot connect to docker. Is the service up and running?\nThe exception was: "{exc}"')
 
-client.images.build(path=getcwd(), tag=DOCKER_TAG)
+class TestClient:
 
-socks_a = client.containers.run(DOCKER_TAG, detach=True, auto_remove=True)
-socks_b = client.containers.run(DOCKER_TAG, detach=True, auto_remove=True)
-socks_c = client.containers.run(DOCKER_TAG, detach=True, auto_remove=True)
+    def setup_class(self: T) -> None:
 
-#ipam_pool = docker.types.IPAMPool(subnet='172.30.0.0/16', gateway='172.30.0.1')
-#ipam_config = docker.types.IPAMConfig(pool_configs=[ipam_pool])
+        try:
+            client = docker.from_env()
+        except docker.errors.DockerException as exc:
+            pytest.exit(f'Cannot connect to docker. Is the service up and running?\nThe exception was: "{exc}"')
 
-#network = client.networks.create(NETWORK_NAME, driver='bridge', ipam=ipam_config)
-network = client.networks.create(NETWORK_NAME)
+        client.images.build(path=getcwd(), tag=DOCKER_TAG)
 
-#network.connect(socks_a, ipv4_address='172.30.1.1')
-#network.connect(socks_b, ipv4_address='172.30.1.2')
-#network.connect(socks_c, ipv4_address='172.30.1.3')
+        self.containers = [
+            client.containers.run(DOCKER_TAG, detach=True, auto_remove=True),
+            client.containers.run(DOCKER_TAG, detach=True, auto_remove=True),
+            client.containers.run(DOCKER_TAG, detach=True, auto_remove=True)
+        ]
 
-network.connect(socks_a)
-network.connect(socks_b)
-network.connect(socks_c)
+        for container in self.containers:
+            LOGGER.info('Running container "%s"', container.name)
+
+        self.ip_addr = [
+            f'172.17.0.{i}' for i in range(2, len(self.containers) + 2)  # 172.17.0.0/16 is default subnet for docker
+        ]
+
+    def teardown_class(self: T) -> None:
+
+        for container in self.containers:
+            LOGGER.info('Killing container "%s"', container.name)
+            container.kill()
+
+    def test_netcat(self: T) -> None:
+        print(self.ip_addr)
