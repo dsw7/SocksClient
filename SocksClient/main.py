@@ -2,6 +2,7 @@
 
 import sys
 from os import path
+from typing import Tuple
 from curses import wrapper
 from configparser import ConfigParser
 from click import group, pass_context, pass_obj, option
@@ -20,8 +21,13 @@ def read_socks_config_file() -> ConfigParser:
     return parser
 
 @group()
+@option(
+    '-s', '--servers', multiple=True,
+    help='Specify one or more socks server IP addresses. This will override values specified in socks.ini',
+    metavar='<server-ip-addr>'
+)
 @pass_context
-def main(context) -> None:
+def main(context, servers: Tuple[str]) -> None:
 
     context.ensure_object(dict)
     configs = read_socks_config_file()
@@ -29,7 +35,10 @@ def main(context) -> None:
     context.obj['configs'] = configs
     context.obj['clients'] = {}
 
-    for server in configs['servers'].values():
+    if not servers:
+        servers = configs['servers'].values()
+
+    for server in servers:
         context.obj['clients'][server] = Client(client_configs=configs['client-configs'], host=server)
 
 @main.command(help='Open curses panel displaying machine status and uptime')
