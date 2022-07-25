@@ -1,9 +1,10 @@
 from os import getcwd, EX_OK, path
+from time import sleep
 from typing import TypeVar
 from logging import getLogger
 from tempfile import gettempdir
 from json import load
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, DEVNULL
 import docker
 import pytest
 
@@ -34,7 +35,7 @@ class TestClient:
         for container in self.containers:
             LOGGER.info('Running container "%s"', container.name)
 
-        self.ip_addr = [
+        self.ip_addresses = [
             f'172.17.0.{i}' for i in range(2, len(self.containers) + 2)  # 172.17.0.0/16 is default subnet for docker
         ]
 
@@ -49,23 +50,31 @@ class TestClient:
     def test_ping(self: T) -> None:
 
         command = [f'{getcwd()}/SocksClient/main.py']
-        command.extend([f'--servers={s}' for s in self.ip_addr])
+        command.extend([f'--servers={s}' for s in self.ip_addresses])
         command.extend(['ping', '--export-to-file'])
 
-        LOGGER.info('Running command: "%s"', ' '.join(command))
+        number_attempts = 20
+        LOGGER.info('Will attempt to run command "%s" %i times', ' '.join(command), number_attempts)
 
-        process = Popen(command, stdout=PIPE, stderr=PIPE)
-        stdout, stderr = process.communicate()
+        for attempt in range(1, number_attempts + 1):
 
-        if stdout:
-            LOGGER.info('Command returned stdout: "%s"', stdout.decode())
+            with Popen(command, stdout=DEVNULL, stderr=PIPE) as process:
+                _, stderr = process.communicate()
 
-        if stderr:
-            LOGGER.warning('Command returned stderr: "%s"', stderr.decode())
+                if stderr:
+                    LOGGER.warning('Command returned stderr: "%s"', stderr.decode())
 
-        assert process.returncode == EX_OK
+                assert process.returncode == EX_OK
 
-        with open(path.join(gettempdir(), 'ping_results.json')) as f:
-            results = load(f)
+            LOGGER.info('Checking if all containers respond to ping. Attempt %i of %i', attempt, number_attempts)
+            sleep(5)
 
-        print(results)
+            with open(path.join(gettempdir(), 'ping_results.json')) as f:
+                containers = load(f)
+
+            if all(containers[ip_addr]['status'] == 'ALIVE' for ip_addr in self.ip_addresses):
+                LOGGER.info('All containers ended up responding to ping!')
+                break
+
+        else:
+            raise AssertionError('One or more containers did not respond to ping command in time!')
