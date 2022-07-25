@@ -22,7 +22,7 @@ class TestClient:
         except docker.errors.DockerException as exc:
             pytest.exit(f'Cannot connect to docker. Is the service up and running?\nThe exception was: "{exc}"')
 
-        client.images.build(path=getcwd(), tag=DOCKER_TAG)
+        client.images.build(path=path.join(getcwd(), 'tests'), tag=DOCKER_TAG)
 
         LOGGER.info('Setting up Docker containers...')
 

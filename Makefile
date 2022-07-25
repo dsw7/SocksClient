@@ -12,7 +12,7 @@ endef
 
 test:
 	$(call ECHO_STEP,Running pytest)
-	@$(PYTHON_INTERP) -m pytest --verbose --capture=no $(ROOT_DIRECTORY)/SocksClient/tests
+	@$(PYTHON_INTERP) -m pytest --verbose --capture=no $(ROOT_DIRECTORY)/tests
 
 lint:
 	$(call ECHO_STEP,Linting project)
