@@ -16,7 +16,8 @@ def test_ping(request_docker_containers: List[str]) -> None:
     command.extend([f'--servers={ip_addr}' for ip_addr in request_docker_containers])
     command.extend(['ping', '--export-to-file'])
 
-    LOGGER.info('Will attempt to run command "%s" %i times', ' '.join(command), NUM_CMD_ATTEMPTS)
+    LOGGER.info('Will attempt to run command %i times:', NUM_CMD_ATTEMPTS)
+    LOGGER.info(' '.join(command))
 
     for attempt in range(1, NUM_CMD_ATTEMPTS + 1):
 
@@ -48,7 +49,8 @@ def test_sysinfo(request_docker_containers: List[str]) -> None:
     command.extend([f'--servers={ip_addr}' for ip_addr in request_docker_containers])
     command.extend(['sysinfo', '--export-to-file'])
 
-    LOGGER.info('Will attempt to run command "%s" %i times', ' '.join(command), NUM_CMD_ATTEMPTS)
+    LOGGER.info('Will attempt to run command %i times:', NUM_CMD_ATTEMPTS)
+    LOGGER.info(' '.join(command))
 
     for attempt in range(1, NUM_CMD_ATTEMPTS + 1):
 
