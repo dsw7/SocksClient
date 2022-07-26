@@ -38,7 +38,6 @@ class TestClient:
         self.ip_addresses = [
             f'172.17.0.{i}' for i in range(2, len(self.containers) + 2)  # 172.17.0.0/16 is default subnet for docker
         ]
-        self.command = [f'{getcwd()}/SocksClient/main.py']
 
     def teardown_class(self: T) -> None:
 
@@ -50,15 +49,16 @@ class TestClient:
 
     def test_ping(self: T) -> None:
 
-        self.command.extend([f'--servers={s}' for s in self.ip_addresses])
-        self.command.extend(['ping', '--export-to-file'])
+        command = [f'{getcwd()}/SocksClient/main.py']
+        command.extend([f'--servers={s}' for s in self.ip_addresses])
+        command.extend(['ping', '--export-to-file'])
 
         number_attempts = 20
-        LOGGER.info('Will attempt to run command "%s" %i times', ' '.join(self.command), number_attempts)
+        LOGGER.info('Will attempt to run command "%s" %i times', ' '.join(command), number_attempts)
 
         for attempt in range(1, number_attempts + 1):
 
-            with Popen(self.command, stdout=DEVNULL, stderr=PIPE) as process:
+            with Popen(command, stdout=DEVNULL, stderr=PIPE) as process:
                 _, stderr = process.communicate()
 
                 if stderr:
@@ -78,3 +78,35 @@ class TestClient:
 
         else:
             raise AssertionError('One or more containers did not respond to ping command in time!')
+
+    def test_sysinfo(self: T) -> None:
+
+        command = [f'{getcwd()}/SocksClient/main.py']
+        command.extend([f'--servers={s}' for s in self.ip_addresses])
+        command.extend(['sysinfo', '--export-to-file'])
+
+        number_attempts = 20
+        LOGGER.info('Will attempt to run command "%s" %i times', ' '.join(command), number_attempts)
+
+        for attempt in range(1, number_attempts + 1):
+
+            with Popen(command, stdout=DEVNULL, stderr=PIPE) as process:
+                _, stderr = process.communicate()
+
+                if stderr:
+                    LOGGER.warning('Command returned stderr: "%s"', stderr.decode())
+
+                assert process.returncode == EX_OK
+
+            LOGGER.info('Checking if all containers respond to sysinfo. Attempt %i of %i', attempt, number_attempts)
+            sleep(5)
+
+            with open(path.join(gettempdir(), 'sysinfo_results.json')) as f:
+                containers = load(f)
+
+            if all(containers[ip_addr]['status'] == 'ALIVE' for ip_addr in self.ip_addresses):
+                LOGGER.info('All containers ended up responding to sysinfo!')
+                break
+
+        else:
+            raise AssertionError('One or more containers did not respond to sysinfo command in time!')
