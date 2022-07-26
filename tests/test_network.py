@@ -38,6 +38,7 @@ class TestClient:
         self.ip_addresses = [
             f'172.17.0.{i}' for i in range(2, len(self.containers) + 2)  # 172.17.0.0/16 is default subnet for docker
         ]
+        self.command = [f'{getcwd()}/SocksClient/main.py']
 
     def teardown_class(self: T) -> None:
 
@@ -49,16 +50,15 @@ class TestClient:
 
     def test_ping(self: T) -> None:
 
-        command = [f'{getcwd()}/SocksClient/main.py']
-        command.extend([f'--servers={s}' for s in self.ip_addresses])
-        command.extend(['ping', '--export-to-file'])
+        self.command.extend([f'--servers={s}' for s in self.ip_addresses])
+        self.command.extend(['ping', '--export-to-file'])
 
         number_attempts = 20
-        LOGGER.info('Will attempt to run command "%s" %i times', ' '.join(command), number_attempts)
+        LOGGER.info('Will attempt to run command "%s" %i times', ' '.join(self.command), number_attempts)
 
         for attempt in range(1, number_attempts + 1):
 
-            with Popen(command, stdout=DEVNULL, stderr=PIPE) as process:
+            with Popen(self.command, stdout=DEVNULL, stderr=PIPE) as process:
                 _, stderr = process.communicate()
 
                 if stderr:
