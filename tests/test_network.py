@@ -9,8 +9,11 @@ import docker
 import pytest
 
 T = TypeVar('T')
+
 DOCKER_TAG = 'socks-test'
 LOGGER = getLogger(__name__)
+NUM_CMD_ATTEMPTS = 20
+DELAY_SEC_BETWEEN_CMD = 5
 
 
 class TestClient:
@@ -53,10 +56,9 @@ class TestClient:
         command.extend([f'--servers={s}' for s in self.ip_addresses])
         command.extend(['ping', '--export-to-file'])
 
-        number_attempts = 20
-        LOGGER.info('Will attempt to run command "%s" %i times', ' '.join(command), number_attempts)
+        LOGGER.info('Will attempt to run command "%s" %i times', ' '.join(command), NUM_CMD_ATTEMPTS)
 
-        for attempt in range(1, number_attempts + 1):
+        for attempt in range(1, NUM_CMD_ATTEMPTS + 1):
 
             with Popen(command, stdout=DEVNULL, stderr=PIPE) as process:
                 _, stderr = process.communicate()
@@ -66,8 +68,8 @@ class TestClient:
 
                 assert process.returncode == EX_OK
 
-            LOGGER.info('Checking if all containers respond to ping. Attempt %i of %i', attempt, number_attempts)
-            sleep(5)
+            LOGGER.info('Checking if all containers respond to ping. Attempt %i of %i', attempt, NUM_CMD_ATTEMPTS)
+            sleep(DELAY_SEC_BETWEEN_CMD)
 
             with open(path.join(gettempdir(), 'ping_results.json')) as f:
                 containers = load(f)
@@ -85,10 +87,9 @@ class TestClient:
         command.extend([f'--servers={s}' for s in self.ip_addresses])
         command.extend(['sysinfo', '--export-to-file'])
 
-        number_attempts = 20
-        LOGGER.info('Will attempt to run command "%s" %i times', ' '.join(command), number_attempts)
+        LOGGER.info('Will attempt to run command "%s" %i times', ' '.join(command), NUM_CMD_ATTEMPTS)
 
-        for attempt in range(1, number_attempts + 1):
+        for attempt in range(1, NUM_CMD_ATTEMPTS + 1):
 
             with Popen(command, stdout=DEVNULL, stderr=PIPE) as process:
                 _, stderr = process.communicate()
@@ -98,8 +99,8 @@ class TestClient:
 
                 assert process.returncode == EX_OK
 
-            LOGGER.info('Checking if all containers respond to sysinfo. Attempt %i of %i', attempt, number_attempts)
-            sleep(5)
+            LOGGER.info('Checking if all containers respond to sysinfo. Attempt %i of %i', attempt, NUM_CMD_ATTEMPTS)
+            sleep(DELAY_SEC_BETWEEN_CMD)
 
             with open(path.join(gettempdir(), 'sysinfo_results.json')) as f:
                 containers = load(f)
